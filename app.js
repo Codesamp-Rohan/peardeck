@@ -33,35 +33,39 @@ async function joinSwarm(topicBuffer) {
 
   swarm.on("connection", (connection) => {
     console.log("New peer connected");
-    peers.add(connection); // Add connection to the set
-  
-    connection.on("close", () => {
-      peers.delete(connection); // Remove disconnected peers
-      console.log("Peer disconnected");
-    });
+    peers.add(connection);
   
     connection.on("data", (data) => {
       console.log("Data received from peer:", data.toString());
-      const message = JSON.parse(data.toString());
-      if (message.type === 'file-chunk') {
-        const { fileName, fileType, chunk, index, isLast } = message;
+      try {
+        const message = JSON.parse(data.toString());
+        if (message.type === 'file-chunk') {
+          const { fileName, fileType, chunk, index, isLast } = message;
   
-        if (!fileChunks.has(fileName)) {
-          fileChunks.set(fileName, []);
+          if (!fileChunks.has(fileName)) {
+            fileChunks.set(fileName, []);
+          }
+  
+          fileChunks.get(fileName)[index] = chunk;
+  
+          if (isLast) {
+            const allChunks = fileChunks.get(fileName).join('');
+            displayFile({ data: allChunks, fileName, fileType });
+            fileChunks.delete(fileName); // Clean up
+            console.log(`File "${fileName}" received and reconstructed.`);
+          }
         }
-  
-        fileChunks.get(fileName)[index] = chunk;
-  
-        if (isLast) {
-          const allChunks = fileChunks.get(fileName).join('');
-          displayFile({ data: allChunks, fileName, fileType });
-          saveFile({ data: allChunks, fileName });
-          fileChunks.delete(fileName); // Clean up
-          console.log(`File "${fileName}" received and reconstructed.`);
-        }
+      } catch (error) {
+        console.error("Error processing incoming data:", error);
       }
     });
+  
+    connection.on("close", () => {
+      peers.delete(connection);
+      console.log("Peer disconnected.");
+    });
   });
+  
   
   
 function chunkData(data, chunkSize = 16 * 1024){
@@ -88,11 +92,11 @@ joinRoomBtn.addEventListener("click", () => {
   joinSwarm(topicBuffer);
 });
 
-function saveFile({ data, fileName }) {
-  const fileBuffer = b4a.from(data, 'base64');
-  fs.writeFileSync(fileName, fileBuffer);
-  console.log(`File saved as "${fileName}"`);
-}
+// function saveFile({ data, fileName }) {
+//   const fileBuffer = b4a.from(data, 'base64');
+//   fs.writeFileSync(fileName, fileBuffer);
+//   console.log(`File saved as "${fileName}"`);
+// }
 
 
 function displayFile(message){
