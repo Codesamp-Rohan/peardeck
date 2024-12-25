@@ -6,6 +6,8 @@ import fs from "fs";
 const swarm = new Hyperswarm();
 let peers = new Set();
 
+const fileChunks = new Map();
+
 const createRoomBtn = document.getElementById("create-room-btn");
 const joinRoomBtn = document.getElementById("join-room-btn");
 const shareFileBtn = document.getElementById("share-file-btn");
@@ -15,12 +17,12 @@ const fileInput = document.getElementById("file-input");
 
 async function joinSwarm(topicBuffer) {
   document.querySelector('#room-section').classList.add('hidden');
-  document.querySelector('#loading').classList.remove('hidden');
+  addLoading();
   await swarm.join(topicBuffer, { lookup: true, announce: true }).flushed();
 
   const topic = b4a.toString(topicBuffer, "hex");
   roomTopicEl.textContent = topic;
-  document.querySelector('#loading').classList.add('hidden');
+  removeLoading();
   document.querySelector('#file-section').classList.remove('hidden');
   document.querySelector('.ppt_view').classList.remove('hidden');
 }
@@ -29,30 +31,46 @@ async function joinSwarm(topicBuffer) {
     peersCountEl.textContent = swarm.connections.size + 1;
   })
 
-swarm.on("connection", (connection) => {
-  console.log("New peer connected");
-  peers.add(connection);
-
-  connection.on("data", (data) => {
-    const message = JSON.parse(data.toString());
-    if (message.type === "presentation") {
-      console.log("Received presentation data");
-      viewPresentation(message.data);
-      savePresentation(message.data);
-    }
+  swarm.on("connection", (connection) => {
+    console.log("New peer connected");
+    peers.add(connection); // Add connection to the set
+  
+    connection.on("close", () => {
+      peers.delete(connection); // Remove disconnected peers
+      console.log("Peer disconnected");
+    });
+  
+    connection.on("data", (data) => {
+      console.log("Data received from peer:", data.toString());
+      const message = JSON.parse(data.toString());
+      if (message.type === 'file-chunk') {
+        const { fileName, fileType, chunk, index, isLast } = message;
+  
+        if (!fileChunks.has(fileName)) {
+          fileChunks.set(fileName, []);
+        }
+  
+        fileChunks.get(fileName)[index] = chunk;
+  
+        if (isLast) {
+          const allChunks = fileChunks.get(fileName).join('');
+          displayFile({ data: allChunks, fileName, fileType });
+          saveFile({ data: allChunks, fileName });
+          fileChunks.delete(fileName); // Clean up
+          console.log(`File "${fileName}" received and reconstructed.`);
+        }
+      }
+    });
   });
+  
+  
+function chunkData(data, chunkSize = 16 * 1024){
+  const chunks = [];
+  for(let i=0;i<data.length;i+=chunkSize){
+    chunks.push(data.slice(i, i+chunkSize));
+  }
 
-  connection.on("close", () => {
-    peers.delete(connection);
-    updatePeerCount();
-  });
-});
-
-function savePresentation(data) {
-  const fileBuffer = b4a.from(data, "base64");
-  const filePath = "received_presentation.pdf";
-  fs.writeFileSync(filePath, fileBuffer);
-  console.log(`Presentation saved as "${filePath}"`);
+  return chunks;
 }
 
 createRoomBtn.addEventListener("click", () => {
@@ -70,17 +88,40 @@ joinRoomBtn.addEventListener("click", () => {
   joinSwarm(topicBuffer);
 });
 
-function viewPresentation(data) {
+function saveFile({ data, fileName }) {
   const fileBuffer = b4a.from(data, 'base64');
-  const fileBlob = new Blob([fileBuffer], { type: 'application/pdf' });
+  fs.writeFileSync(fileName, fileBuffer);
+  console.log(`File saved as "${fileName}"`);
+}
+
+
+function displayFile(message){
+  const {data, fileName, fileType} = message;
+  try{
+  const fileBuffer = b4a.from(data, 'base64');
+  const fileBlob = new Blob([fileBuffer], { type: fileType });
   const fileURL = URL.createObjectURL(fileBlob);
 
-  const iframe = document.getElementById('presentation-viewer');
-  if (iframe) {
-    iframe.src = fileURL;
-    console.log('Presentation displayed in the iframe');
+  if (fileType.startsWith('image/')) {
+    const img = document.createElement('img');
+    img.src = fileURL;
+    img.alt = fileName;
+    img.style.maxWidth = '100%';
+    document.body.appendChild(img);
+  } else if (fileType === 'application/pdf') {
+    const iframe = document.getElementById('presentation-viewer');
+    if (iframe) {
+      iframe.src = fileURL;
+    }
   } else {
-    console.log('Iframe element not found for displaying the presentation.');
+    const link = document.createElement('a');
+    link.href = fileURL;
+    link.download = fileName;
+    link.textContent = `Download ${fileName}`;
+    document.body.appendChild(link);
+  }
+  }catch(error){
+  console.error('Error displaying file:', error);
   }
 }
 
@@ -94,11 +135,32 @@ shareFileBtn.addEventListener("click", () => {
   const reader = new FileReader();
   reader.onload = () => {
     const data = reader.result.split(',')[1];
-    viewPresentation(data);
-    for (const peer of peers) {
-      peer.write(JSON.stringify({ type: 'presentation', data }));
-    }
-    console.log('Presentation shared with peers.');
+    const fileName = file.name;
+    const fileType = file.type;
+    console.log("File name : ", fileName);
+    console.log("File type : ", fileType);
+
+    const chunks = chunkData(data, 16*1024);
+    chunks.forEach((chunk, index) => {
+     try {
+      for (const peer of peers) {
+        peer.write(JSON.stringify({ type: 'file-chunk', chunk, fileName, fileType, index, isLast: index===chunks.length - 1 }));
+        console.log(`Sending chunk ${index + 1} of ${chunks.length} to peers`);
+      }
+     } catch (error) {
+        console.error('Error sending chunk to peer:', err);
+     }
+    })
+    displayFile({data, fileName, fileType});
+    console.log(`${fileName} shared with peers.`);
   };
   reader.readAsDataURL(file);
+  fileInput.innerText = '';
 });
+
+function addLoading(){
+  document.querySelector('#loading').classList.remove('hidden');
+}
+function removeLoading(){
+  document.querySelector('#loading').classList.add('hidden');
+}
