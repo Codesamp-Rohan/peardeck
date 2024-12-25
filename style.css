@@ -1,0 +1,103 @@
+pear-ctrl[data-platform="darwin"] { margin-top: 12px; margin-left: 10px; }
+
+@font-face {
+  font-family: mona-sans;
+  src: url('./assets/Mona-Sans.woff2');
+}
+
+      #titlebar {
+        -webkit-app-region: drag;
+        height: 40px;
+        width: 100%;
+        position: fixed;
+        left: 0;
+        top: 0;
+        background-color: #111;
+        filter: drop-shadow(2px 10px 6px #888);
+      }
+      *{
+        padding: 0;
+        margin: 0;
+        box-sizing: border-box;
+        font-family: mona-sans;
+      }
+      body {
+        margin: 0;
+        padding: 20px;
+        background-color: #f4f4f4;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .container {
+        width: 60%;
+        margin-top: 5rem;
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+      h1 { 
+        font-size: 16px;
+        color: #333;
+      }
+      p{
+        font-size: 10px;
+      }
+      .form-group {
+        margin-bottom: 15px;
+      }
+      label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+      }
+      input[type="text"], input[type="file"] {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
+      button {
+        width: 100%;
+        display: block;
+        padding: 10px;
+        background-color: #161616;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 700;
+      }
+      button:hover {
+        background-color: #222;
+      }
+      .hidden{
+        display: none !important;
+      }
+      input:focus, button:focus{
+        outline: none;
+      }
+      .ppt_view{
+        width: 100%;
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        margin-block: 2rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+      iframe{
+        border: 0;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+      #loading{
+        margin-block: 4rem;
+        font-size: 12px;
+        font-weight: 700;
+        text-align: center;
+      }
