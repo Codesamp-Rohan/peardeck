@@ -137,7 +137,40 @@ function displayFile(message){
     if (iframe) {
       iframe.src = fileURL;
     }
+  } else if(fileType === 'video/mp4'){
+    const videoContainer = document.createElement('div');
+    videoContainer.classList.add('videoContainer');
+    const video = document.createElement('video');
+    video.src = fileURL;
+    video.controls = true; // Add controls to allow play, pause, etc.
+    video.alt = fileName;
+    const vdContent = document.createElement('div');
+    vdContent.classList.add('vd-content');
+    const vdContentDiv = document.createElement('div');
+    vdContentDiv.classList.add('vd-contentDiv');
+    const vdH1 = document.createElement('h1');
+    const vdp = document.createElement('p');
+    vdH1.textContent = `Name : ${fileName}`;
+    vdp.textContent = `File Type : ${fileType}`;
+    const vdDownload = document.createElement('button');
+    vdDownload.textContent = "Download";
+  
+    vdDownload.addEventListener('click', () => {
+      const downloadLink = document.createElement('a');
+      downloadLink.href = fileURL;
+      downloadLink.download = fileName;
+      downloadLink.click();
+    });
+  
+    vdContentDiv.appendChild(vdH1);
+    vdContentDiv.appendChild(vdp);
+    vdContent.appendChild(vdContentDiv);
+    vdContent.appendChild(vdDownload);
+    videoContainer.appendChild(video);
+    videoContainer.appendChild(vdContent);
+    document.querySelector('.video_view').appendChild(videoContainer);
   }
+  
    else {
     const link = document.createElement('a');
     link.classList.add('other_link');
@@ -197,6 +230,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const views = {
     "ppt/pdf": document.querySelector(".ppt_view"),
     image: document.querySelector(".image_view"),
+    video: document.querySelector(".video_view"),
     other: document.querySelector(".other_view")
   };
   buttons.forEach(button => {

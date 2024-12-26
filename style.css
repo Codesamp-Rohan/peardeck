@@ -79,7 +79,7 @@ pear-ctrl[data-platform="darwin"] { margin-top: 12px; margin-left: 10px; }
       input:focus, button:focus{
         outline: none;
       }
-      .ppt_view, .image_view, .other_view{
+      .ppt_view, .image_view, .video_view, .other_view{
         width: 100%;
         background: white;
         padding: 20px;
@@ -136,24 +136,24 @@ pear-ctrl[data-platform="darwin"] { margin-top: 12px; margin-left: 10px; }
       a:hover{
         background-color: #eee;
       }
-      .image_view img{
+      .image_view img, .video_view video{
         max-width: 70%;
         border-radius: 5px;
         box-shadow: 0 4px 16px #000000ad;
       }
-      .imgContainer{
+      .imgContainer, .videoContainer{
         display: flex;
         gap: 10px;
         justify-content: space-between;
       }
-      .img-content{
+      .img-content, .vd-content{
         width: 100%;
         display: flex;
         flex-direction: column;
         justify-content: end;
         gap: 10px;
       }
-      .img-contentDiv{
+      .img-contentDiv, .vd-contentDiv{
         display: flex;
         flex-direction: column;
         gap: 3px;
@@ -172,3 +172,19 @@ pear-ctrl[data-platform="darwin"] { margin-top: 12px; margin-left: 10px; }
         flex-direction: column;
         gap: 6px;
       }
+
+      /* Webkit */
+::-webkit-scrollbar {
+  width: 5px;
+}
+::-webkit-scrollbar-track {
+  background: #f4f4f4;
+  border-radius: 6px;
+}
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 6px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #666;
+}
