@@ -8,6 +8,11 @@
     <div id="titlebar">
       <pear-ctrl></pear-ctrl>
     </div>
+    <nav>
+      <a href="https://github.com/Codesamp-Rohan/peardeck" style="width: 50px;" target="_blank">
+        <img src="./assets/github.png" style="width: 100%;" alt="icon">
+      </a>
+    </nav>
     <div class="container">
       <h1 style="margin-bottom: 0.5rem;">Pear Deck</h1>
       <p>Room Topic: <span id="room-topic"></span></p>
@@ -19,7 +24,7 @@
         </div>
         <button id="join-room-btn">Join Room</button>
         
-        <div style="text-align: center; margin: 15px 0;">OR</div>
+        <h1 style="text-align: center; margin: 15px 0;">OR</h1>
         
         <button id="create-room-btn">Create New Room</button>
       </div>
@@ -33,9 +38,9 @@
       </div>
     </div>
     <div class="toggle-btn-div hidden">
-      <button id="pptBtn">ppt/pdf</button>
-      <button id="imgBtn">image</button>
-      <button id="otherBtn">other</button>
+      <button id="pptBtn" style="text-transform: uppercase;">ppt/pdf</button>
+      <button id="imgBtn" style="text-transform: uppercase;">image</button>
+      <button id="otherBtn" style="text-transform: uppercase;">other</button>
     </div>
     <div class="ppt_view hidden">
       <h1>Presentation Viewer</h1>
@@ -46,6 +51,7 @@
     </div>
     <div class="other_view hidden">
       <h1>Other Viewer</h1>
+      <div class="other_viewLinks"></div>
     </div>
 
   </body>

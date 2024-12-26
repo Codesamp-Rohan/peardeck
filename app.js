@@ -80,6 +80,7 @@ function chunkData(data, chunkSize = 16 * 1024){
 
 createRoomBtn.addEventListener("click", () => {
   const topicBuffer = crypto.randomBytes(32);
+  peersCountEl.textContent = 1;
   joinSwarm(topicBuffer);
 });
 
@@ -108,23 +109,42 @@ function displayFile(message){
     img.alt = fileName;
     const imgContent = document.createElement('div');
     imgContent.classList.add('img-content')
+    const imgContentDiv = document.createElement('div');
+    imgContentDiv.classList.add('img-contentDiv');
+    const imgH1 = document.createElement('h1');
+    const imgp = document.createElement('p');
+    imgH1.textContent = `Name : ${fileName}`;
+    imgp.textContent = `File Type : ${fileType}`;
     const imgDownload = document.createElement('button');
     imgDownload.textContent = "Download";
+
+    imgDownload.addEventListener('click', () => {
+      const downloadLink = document.createElement('a');
+      downloadLink.href = fileURL;
+      downloadLink.download = fileName;
+      downloadLink.click();
+    });
+
+    imgContentDiv.appendChild(imgH1);
+    imgContentDiv.appendChild(imgp);
+    imgContent.appendChild(imgContentDiv);
     imgContent.appendChild(imgDownload);
     imageContainer.appendChild(img);
     imageContainer.appendChild(imgContent);
     document.querySelector('.image_view').appendChild(imageContainer);
-  } else if (fileType === 'application/pdf') {
+  } else if (fileType === 'application/pdf' || fileType === 'application/vnd.openxmlformats-officedocument.presentationml.presentation' || fileType === 'application/vnd.ms-powerpoint') {
     const iframe = document.getElementById('presentation-viewer');
     if (iframe) {
       iframe.src = fileURL;
     }
-  } else {
+  }
+   else {
     const link = document.createElement('a');
+    link.classList.add('other_link');
     link.href = fileURL;
     link.download = fileName;
     link.textContent = `Download ${fileName}`;
-    document.querySelector('.other_view').appendChild(link);
+    document.querySelector('.other_viewLinks').appendChild(link);
   }
   }catch(error){
   console.error('Error displaying file:', error);
@@ -182,12 +202,18 @@ document.addEventListener("DOMContentLoaded", () => {
   buttons.forEach(button => {
     button.addEventListener("click", () => {
       Object.values(views).forEach(view => view.classList.add("hidden"));
-      buttons.forEach(btn => btn.style.borderBottom = "none");
+      buttons.forEach(btn => {
+        btn.style.borderBottom = "none";
+        btn.style.backgroundColor = '#f4f4f4';
+        btn.style.borderRadius = "5px";
+      });
       const viewKey = button.textContent.toLowerCase();
       if (views[viewKey]) {
         views[viewKey].classList.remove("hidden");
       }
       button.style.borderBottom = "2px solid #161616";
+      button.style.backgroundColor = "#ddd";
+      button.style.borderRadius = "5px";
     });
   });
 });
