@@ -23,11 +23,11 @@ PearDeck is a lightweight and innovative peer-to-peer presentation sharing app t
 ### **Steps**  
 1. Clone the repository:  
    ```bash
-   git clone https://github.com/Codesamp-Rohan/PearDeck.git
+   git clone https://github.com/Codesamp-Rohan/peardeck.git
    ```
 2. Navigate to the project directory:  
    ```bash
-   cd PearDeck
+   cd peardeck
    ```
 3. Install dependencies:  
    ```bash
@@ -84,6 +84,6 @@ This project is licensed under the [MIT License](./LICENSE).
 
 ## **Contact**  
 Have questions or suggestions? Reach out!  
-- **Email:** rohanchaudhary.bkbiet2022@example.com  
+- **Email:** rohanchaudhary.bkbiet2022@gmail.com  
 - **LinkedIn:** (https://www.linkedin.com/in/rohan-chaudhary-399742255)
 - **GitHub Issues:** [Open an issue](https://github.com/Codesamp-Rohan/PearDeck/issues)  

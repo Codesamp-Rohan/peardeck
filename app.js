@@ -24,6 +24,7 @@ async function joinSwarm(topicBuffer) {
   roomTopicEl.textContent = topic;
   removeLoading();
   document.querySelector('#file-section').classList.remove('hidden');
+  document.querySelector('.toggle-btn-div').classList.remove('hidden');
   document.querySelector('.ppt_view').classList.remove('hidden');
 }
 
@@ -92,13 +93,6 @@ joinRoomBtn.addEventListener("click", () => {
   joinSwarm(topicBuffer);
 });
 
-// function saveFile({ data, fileName }) {
-//   const fileBuffer = b4a.from(data, 'base64');
-//   fs.writeFileSync(fileName, fileBuffer);
-//   console.log(`File saved as "${fileName}"`);
-// }
-
-
 function displayFile(message){
   const {data, fileName, fileType} = message;
   try{
@@ -107,11 +101,19 @@ function displayFile(message){
   const fileURL = URL.createObjectURL(fileBlob);
 
   if (fileType.startsWith('image/')) {
+    const imageContainer = document.createElement('div');
+    imageContainer.classList.add('imgContainer');
     const img = document.createElement('img');
     img.src = fileURL;
     img.alt = fileName;
-    img.style.maxWidth = '100%';
-    document.body.appendChild(img);
+    const imgContent = document.createElement('div');
+    imgContent.classList.add('img-content')
+    const imgDownload = document.createElement('button');
+    imgDownload.textContent = "Download";
+    imgContent.appendChild(imgDownload);
+    imageContainer.appendChild(img);
+    imageContainer.appendChild(imgContent);
+    document.querySelector('.image_view').appendChild(imageContainer);
   } else if (fileType === 'application/pdf') {
     const iframe = document.getElementById('presentation-viewer');
     if (iframe) {
@@ -122,7 +124,7 @@ function displayFile(message){
     link.href = fileURL;
     link.download = fileName;
     link.textContent = `Download ${fileName}`;
-    document.body.appendChild(link);
+    document.querySelector('.other_view').appendChild(link);
   }
   }catch(error){
   console.error('Error displaying file:', error);
@@ -168,3 +170,24 @@ function addLoading(){
 function removeLoading(){
   document.querySelector('#loading').classList.add('hidden');
 }
+
+// Other JS
+document.addEventListener("DOMContentLoaded", () => {
+  const buttons = document.querySelectorAll(".toggle-btn-div button");
+  const views = {
+    "ppt/pdf": document.querySelector(".ppt_view"),
+    image: document.querySelector(".image_view"),
+    other: document.querySelector(".other_view")
+  };
+  buttons.forEach(button => {
+    button.addEventListener("click", () => {
+      Object.values(views).forEach(view => view.classList.add("hidden"));
+      buttons.forEach(btn => btn.style.borderBottom = "none");
+      const viewKey = button.textContent.toLowerCase();
+      if (views[viewKey]) {
+        views[viewKey].classList.remove("hidden");
+      }
+      button.style.borderBottom = "2px solid #161616";
+    });
+  });
+});
