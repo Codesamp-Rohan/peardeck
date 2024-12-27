@@ -6,6 +6,9 @@ import fs from "fs";
 const swarm = new Hyperswarm();
 let peers = new Set();
 
+const myHexCode = generateRandomHexCode();
+console.log(`Your sender name: ${myHexCode}`);
+
 const fileChunks = new Map();
 
 const createRoomBtn = document.getElementById("create-room-btn");
@@ -13,19 +16,22 @@ const joinRoomBtn = document.getElementById("join-room-btn");
 const shareFileBtn = document.getElementById("share-file-btn");
 const roomTopicEl = document.getElementById("room-topic");
 const peersCountEl = document.getElementById("peers-count");
+const userName = document.getElementById("hexName");
 const fileInput = document.getElementById("file-input");
 
 async function joinSwarm(topicBuffer) {
   document.querySelector('#room-section').classList.add('hidden');
   addLoading();
+  console.log(name);
   await swarm.join(topicBuffer, { lookup: true, announce: true }).flushed();
-
   const topic = b4a.toString(topicBuffer, "hex");
   roomTopicEl.textContent = topic;
+  userName.textContent = myHexCode;
   removeLoading();
+  document.querySelector('#chat--container').classList.remove('hidden');
   document.querySelector('#file-section').classList.remove('hidden');
   document.querySelector('.toggle-btn-div').classList.remove('hidden');
-  document.querySelector('.ppt_view').classList.remove('hidden');
+  document.querySelector('.pdf_view').classList.remove('hidden');
 }
 
   swarm.on('update', () => {
@@ -35,11 +41,13 @@ async function joinSwarm(topicBuffer) {
   swarm.on("connection", (connection) => {
     console.log("New peer connected");
     peers.add(connection);
-  
     connection.on("data", (data) => {
       console.log("Data received from peer:", data.toString());
       try {
         const message = JSON.parse(data.toString());
+        if (message.type === 'chat') {
+          onMessageAdded(message.sender, message.content);
+        }
         if (message.type === 'file-chunk') {
           const { fileName, fileType, chunk, index, isLast } = message;
   
@@ -132,7 +140,13 @@ function displayFile(message){
     imageContainer.appendChild(img);
     imageContainer.appendChild(imgContent);
     document.querySelector('.image_view').appendChild(imageContainer);
-  } else if (fileType === 'application/pdf' || fileType === 'application/vnd.openxmlformats-officedocument.presentationml.presentation' || fileType === 'application/vnd.ms-powerpoint') {
+  } else if (fileType === 'application/vnd.openxmlformats-officedocument.presentationml.presentation' || fileType === 'application/vnd.ms-powerpoint') { 
+    const googleDocsUrl = `https://docs.google.com/gview?url=${fileURL}&embedded=true`;
+    const iframe = document.getElementById('ppt-viewer');
+    if(iframe){ 
+      iframe.src = googleDocsUrl;
+    } 
+  } else if (fileType === 'application/pdf') {
     const iframe = document.getElementById('presentation-viewer');
     if (iframe) {
       iframe.src = fileURL;
@@ -142,7 +156,7 @@ function displayFile(message){
     videoContainer.classList.add('videoContainer');
     const video = document.createElement('video');
     video.src = fileURL;
-    video.controls = true; // Add controls to allow play, pause, etc.
+    video.controls = true;
     video.alt = fileName;
     const vdContent = document.createElement('div');
     vdContent.classList.add('vd-content');
@@ -228,7 +242,8 @@ function removeLoading(){
 document.addEventListener("DOMContentLoaded", () => {
   const buttons = document.querySelectorAll(".toggle-btn-div button");
   const views = {
-    "ppt/pdf": document.querySelector(".ppt_view"),
+    ppt: document.querySelector(".ppt_view"),
+    pdf: document.querySelector(".pdf_view"),
     image: document.querySelector(".image_view"),
     video: document.querySelector(".video_view"),
     other: document.querySelector(".other_view")
@@ -251,3 +266,44 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 });
+
+
+// Chat Code
+const chatToggleBtn = document.querySelector('#chat-toggle-btn');
+const chatArea = document.querySelector('#chat--area');
+
+chatToggleBtn.addEventListener('click', () => {
+  chatArea.classList.toggle('hidden');
+})
+
+document.querySelector('#sendMsgForm').addEventListener('submit', sendMessage)
+
+function sendMessage (e) {
+  const message = document.querySelector('#message-input').value
+  document.querySelector('#message-input').value = ''
+  e.preventDefault()
+  if (!message) return;
+  const chatMessage = JSON.stringify({
+    type: 'chat',
+    sender: myHexCode,
+    content: message,
+  });
+  onMessageAdded('You', message)
+  const peers = [...swarm.connections]
+  for (const peer of peers) peer.write(chatMessage)
+}
+
+function onMessageAdded(name, message) {
+  const $div = document.createElement('div');
+  $div.className = name === "You" ? 'chat-message-right' : 'chat-message-left';
+  $div.innerHTML = `
+  <p>${message}</p>
+  <p style="font-size: 7px; color: #777;"><strong>${name}</strong></p>
+  `;
+  document.querySelector('#chat').appendChild($div);
+  document.querySelector('#chat').scrollTop = document.querySelector('#chat').scrollHeight;
+}
+
+function generateRandomHexCode() {
+  return Math.random().toString(16).substr(2, 6);
+}

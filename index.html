@@ -13,10 +13,22 @@
         <img src="./assets/github.png" style="width: 100%;" alt="icon">
       </a>
     </nav>
+    <div id="chat--container" class="hidden">
+      <button id="chat-toggle-btn">Chat</button>
+      <div id="chat--area" class="hidden">
+      <div class="triangle"></div>
+      <div id="chat"></div>
+      <form id="sendMsgForm" style="position: relative;">
+        <input type="text" id="message-input" placeholder="Enter the message*" />
+        <button id="sendBtn">Send</button>
+      </form>
+    </div>
+    </div>
     <div class="container">
       <h1 style="margin-bottom: 0.5rem;">Pear Deck</h1>
       <p>Room Topic: <span id="room-topic"></span></p>
       <p>Peers <span id="peers-count">0</span></p>
+      <p>Your hexy : <span id="hexName"></span></p>
       <div style="margin-top: 2rem;" id="room-section" class="">
         <div class="form-group">
           <label style="font-size: 13px;" for="room-id">Enter Room ID to Join:</label>
@@ -38,14 +50,19 @@
       </div>
     </div>
     <div class="toggle-btn-div hidden">
-      <button id="pptBtn" style="text-transform: uppercase;">ppt/pdf</button>
+      <button id="pptBtn" style="text-transform: uppercase;">ppt</button>
+      <button id="pdfBtn" style="text-transform: uppercase;">pdf</button>
       <button id="imgBtn" style="text-transform: uppercase;">image</button>
       <button id="videoBtn" style="text-transform: uppercase;">video</button>
       <button id="otherBtn" style="text-transform: uppercase;">other</button>
     </div>
     <div class="ppt_view hidden">
-      <h1>Presentation Viewer</h1>
-      <iframe id="presentation-viewer" width="100%" height="500px"></iframe>
+    <h1>PPT Viewer</h1>
+    <iframe id="ppt-viewer" width="100%" height="600px"></iframe>
+    </div>
+    <div class="pdf_view hidden">
+      <h1>PDF Viewer</h1>
+      <iframe id="presentation-viewer" width="100%" height="600px"></iframe>
     </div>
     <div class="image_view hidden">
       <h1>Image Viewer</h1>
