@@ -1,4 +1,4 @@
-# **PearDeck: P2P Presentation Sharing App**
+# **PearDeck: P2P Sharing App**
 
 ## **Overview**  
 PearDeck is a lightweight and innovative peer-to-peer presentation sharing app that allows users to collaborate seamlessly without relying on centralized servers. With real-time sharing and robust privacy features, it's perfect for teams, educators, and remote workers looking for an efficient and secure way to exchange slides.
