@@ -1,13 +1,13 @@
 # **PearDeck: P2P Sharing App**
 
 ## **Overview**  
-PearDeck is a lightweight and innovative peer-to-peer presentation sharing app that allows users to collaborate seamlessly without relying on centralized servers. With real-time sharing and robust privacy features, it's perfect for teams, educators, and remote workers looking for an efficient and secure way to exchange slides.
+PearDeck is a lightweight and innovative peer-to-peer sharing app that allows users to collaborate seamlessly without relying on centralized servers. With real-time sharing and robust privacy features, it's perfect for teams, educators, and remote workers looking for an efficient and secure way to exchange slides.
 
 ---
 
 ## **Features**  
-- 📤 **P2P File Sharing:** Share presentations directly with peers over a decentralized network.  
-- 📄 **Live Slide Viewer:** View shared presentations in real-time within the app.  
+- 📤 **P2P File Sharing:** Share directly with peers over a decentralized network.  
+- 📄 **Live Slide Viewer:** View shared in real-time within the app.  
 - 🛡️ **Secure Connections:** Built with hyperswarm and hypercore-crypto for encrypted data sharing.  
 - 🚀 **No Central Server:** Fully decentralized to prioritize privacy and eliminate server costs.  
 - 💡 **User-Friendly Interface:** Intuitive design for hassle-free usage.  
@@ -21,21 +21,13 @@ PearDeck is a lightweight and innovative peer-to-peer presentation sharing app t
 - Git  
 
 ### **Steps**  
-1. Clone the repository:  
+1. Install globally:  
    ```bash
-   git clone https://github.com/Codesamp-Rohan/peardeck.git
+   npm install peardeck -g
    ```
-2. Navigate to the project directory:  
+2. Run:  
    ```bash
-   cd peardeck
-   ```
-3. Install dependencies:  
-   ```bash
-   npm install
-   ```
-4. Run the app:  
-   ```bash
-   npm start
+   peardeck
    ```
 
 ---
