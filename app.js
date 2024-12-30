@@ -6,8 +6,8 @@ import fs from "fs";
 const swarm = new Hyperswarm();
 let peers = new Set();
 
-const myHexCode = generateRandomHexCode();
-console.log(`Your sender name: ${myHexCode}`);
+// const myHexCode = generateRandomHexCode();
+// let myHexCode;
 
 const fileChunks = new Map();
 
@@ -26,7 +26,7 @@ async function joinSwarm(topicBuffer) {
   await swarm.join(topicBuffer, { lookup: true, announce: true }).flushed();
   const topic = b4a.toString(topicBuffer, "hex");
   roomTopicEl.textContent = topic;
-  userName.textContent = myHexCode;
+  // userName.textContent = myHexCode;
   removeLoading();
   document.querySelector('#chat--container').classList.remove('hidden');
   document.querySelector('#file-section').classList.remove('hidden');
@@ -39,12 +39,16 @@ async function joinSwarm(topicBuffer) {
   })
 
   swarm.on("connection", (connection) => {
-    console.log("New peer connected");
+    const myHexCode = b4a.toString(connection.remotePublicKey, 'hex').substr(0, 6);
+    console.log("New peer connected : ", myHexCode);
     peers.add(connection);
     connection.on("data", (data) => {
       console.log("Data received from peer:", data.toString());
       try {
         const message = JSON.parse(data.toString());
+        if(message.type === 'tchat'){
+          onMessageAdded(myHexCode ,message.message);
+        }
         if (message.type === 'chat') {
           onMessageAdded(message.sender, message.content);
         }
@@ -283,10 +287,12 @@ function sendMessage (e) {
   document.querySelector('#message-input').value = ''
   e.preventDefault()
   if (!message) return;
+  const myHexCode = b4a.toString(swarm.keyPair.publicKey, 'hex').substr(0, 6);
   const chatMessage = JSON.stringify({
     type: 'chat',
     sender: myHexCode,
     content: message,
+    timestamp: Date.now()
   });
   onMessageAdded('You', message)
   const peers = [...swarm.connections]
@@ -304,6 +310,6 @@ function onMessageAdded(name, message) {
   document.querySelector('#chat').scrollTop = document.querySelector('#chat').scrollHeight;
 }
 
-function generateRandomHexCode() {
-  return Math.random().toString(16).substr(2, 6);
-}
+// function generateRandomHexCode() {
+//   return Math.random().toString(16).substr(2, 6);
+// }
