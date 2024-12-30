@@ -42,17 +42,60 @@ async function joinSwarm(topicBuffer) {
     const myHexCode = b4a.toString(connection.remotePublicKey, 'hex').substr(0, 6);
     console.log("New peer connected : ", myHexCode);
     peers.add(connection);
+
+    const receivedFiles = new Map();
+
     connection.on("data", (data) => {
-      console.log("Data received from peer:", data.toString());
+      // console.log("Data received from peer:", data.toString());
       try {
         const message = JSON.parse(data.toString());
+        if(message.type === 'terminal-file-chunk'){
+          const {fileName, chunk, index, total} = message;
+
+          if(!receivedFiles.has(fileName)){
+            receivedFiles.set(fileName, {total, chunks: [], receivedCount: 0});
+          }
+          const fileInfo = receivedFiles.get(fileName);
+        fileInfo.chunks[index] = chunk;
+        fileInfo.receivedCount++;
+
+        console.log(`[info] Received chunk ${index + 1}/${total} of "${fileName}".`);
+
+        if (fileInfo.receivedCount === total) {
+          const allChunks = fileInfo.chunks.join('');
+          const fileBuffer = b4a.from(allChunks, 'base64');
+          const blob = new Blob([fileBuffer]);
+
+          // Save or display the reconstructed file
+          // const fileUrl = URL.createObjectURL(blob);
+          // console.log(`[info] File "${fileName}" reconstructed. Download URL: ${fileUrl}`);
+
+          // // Example: Automatically download the file
+          // const downloadLink = document.createElement('a');
+          // downloadLink.href = fileUrl;
+          // downloadLink.download = fileName;
+          // downloadLink.click();
+
+          displayFile({
+            data: allChunks,
+            fileName,
+            fileType: blob.type,
+          });
+          console.log(`[info] File "${fileName}" reconstructed and displayed.`);
+
+          receivedFiles.delete(fileName);
+        }
+
+        }
+
+        // 
         if(message.type === 'tchat'){
           onMessageAdded(myHexCode ,message.message);
         }
         if (message.type === 'chat') {
           onMessageAdded(message.sender, message.content);
         }
-        if (message.type === 'file-chunk') {
+        if (message.type === 'gui-file-chunk') {
           const { fileName, fileType, chunk, index, isLast } = message;
   
           if (!fileChunks.has(fileName)) {
@@ -221,7 +264,13 @@ shareFileBtn.addEventListener("click", () => {
     chunks.forEach((chunk, index) => {
      try {
       for (const peer of peers) {
-        peer.write(JSON.stringify({ type: 'file-chunk', chunk, fileName, fileType, index, isLast: index===chunks.length - 1 }));
+        peer.write(JSON.stringify({ 
+          type: 'gui-file-chunk', 
+          chunk, 
+          fileName,
+          fileType, 
+          index, 
+          isLast: index===chunks.length - 1 }));
         console.log(`Sending chunk ${index + 1} of ${chunks.length} to peers`);
       }
      } catch (error) {
